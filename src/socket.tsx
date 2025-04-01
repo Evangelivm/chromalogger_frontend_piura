@@ -10,7 +10,7 @@ let socket: Socket | null = null;
 // Inicializa el socket solo una vez
 export const initializeSocket = () => {
   if (!socket) {
-    // socket = io("ws://161.132.47.226:3000"); // Cambia al puerto adecuado del servidor WebSocket
+    //socket = io("ws://161.132.47.226:3000"); // Cambia al puerto adecuado del servidor WebSocket
     socket = io("ws://localhost:3000"); // Cambia al puerto adecuado del servidor WebSocket
   }
   return socket;

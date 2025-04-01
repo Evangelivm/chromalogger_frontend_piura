@@ -69,7 +69,7 @@ const data = {
     {
       name: "Pozo 1",
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      plan: "Disponible",
     },
     // {
     //   name: "Pozo 2",
@@ -93,10 +93,10 @@ const data = {
           title: "Data Monitor",
           url: "/",
         },
-        {
-          title: "Graphic Monitor",
-          url: "/datagraph",
-        },
+        // {
+        //   title: "Graphic Monitor",
+        //   url: "/datagraph",
+        // },
         // {
         //   title: "Indicadores",
         //   url: "/meters",
@@ -192,7 +192,7 @@ function Navigation() {
   const [activeTeam, setActiveTeam] = React.useState(data.oil_wells[0]);
   return (
     <>
-      <Sidebar collapsible="icon">
+      <Sidebar collapsible="icon" className="font-mono">
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -200,7 +200,7 @@ function Navigation() {
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton
                     size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground font-mono"
                   >
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                       <activeTeam.logo className="size-4" />
@@ -222,14 +222,14 @@ function Navigation() {
                   side="bottom"
                   sideOffset={4}
                 >
-                  <DropdownMenuLabel className="text-xs text-muted-foreground">
+                  <DropdownMenuLabel className="text-xs text-muted-foreground font-mono">
                     Pozos Disponibles
                   </DropdownMenuLabel>
                   {data.oil_wells.map((team, index) => (
                     <DropdownMenuItem
                       key={team.name}
                       onClick={() => setActiveTeam(team)}
-                      className="gap-2 p-2"
+                      className="gap-2 p-2 font-mono"
                     >
                       <div className="flex size-6 items-center justify-center rounded-sm border">
                         <team.logo className="size-4 shrink-0" />
@@ -254,14 +254,14 @@ function Navigation() {
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Menu</SidebarGroupLabel>
+            <SidebarGroupLabel className="font-mono">Menu</SidebarGroupLabel>
             <SidebarMenu>
               {data.navMain.map((item) => (
                 <Collapsible
                   key={item.title}
                   asChild
                   defaultOpen={item.isActive}
-                  className="group/collapsible"
+                  className="group/collapsible font-mono"
                 >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
@@ -347,14 +347,14 @@ function Navigation() {
                     size="lg"
                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   >
-                    <Avatar className="h-8 w-8 rounded-lg">
+                    <Avatar className="h-8 w-8 rounded-lg ">
                       <AvatarImage
                         src={data.user.avatar}
                         alt={data.user.name}
                       />
                       <AvatarFallback className="rounded-lg">US</AvatarFallback>
                     </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
+                    <div className="grid flex-1 text-left text-sm leading-tight ">
                       <span className="truncate font-semibold">
                         {data.user.name}
                       </span>
@@ -378,11 +378,11 @@ function Navigation() {
                           src={data.user.avatar}
                           alt={data.user.name}
                         />
-                        <AvatarFallback className="rounded-lg">
+                        <AvatarFallback className="rounded-lg font-mono">
                           US
                         </AvatarFallback>
                       </Avatar>
-                      <div className="grid flex-1 text-left text-sm leading-tight">
+                      <div className="grid flex-1 text-left text-sm leading-tight font-mono">
                         <span className="truncate font-semibold">
                           {data.user.name}
                         </span>
@@ -415,7 +415,10 @@ function Navigation() {
                     </DropdownMenuItem>
                   </DropdownMenuGroup> */}
                   {/* <DropdownMenuSeparator /> */}
-                  <DropdownMenuItem onClick={() => signOut()}>
+                  <DropdownMenuItem
+                    onClick={() => signOut()}
+                    className="font-mono"
+                  >
                     <LogOut />
                     Sign Out
                   </DropdownMenuItem>
