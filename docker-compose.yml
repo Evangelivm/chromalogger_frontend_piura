@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003" # El puerto interno de tu contenedor
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      HOSTNAME: 0.0.0.0
+    restart: unless-stopped
+    networks:
+      - shared_network
+
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80" # Expones el puerto HTTP en tu máquina
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf # Montas la configuración de Nginx
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - shared_network
+
+networks:
+  shared_network:
+    external: true
