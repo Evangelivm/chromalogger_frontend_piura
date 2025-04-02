@@ -683,7 +683,7 @@ const IndicatorBox = ({
         {name}
       </div>
       <div
-        className={`text-xl md:text-3xl font-bold py-2 ${color} tracking-tighter`}
+        className={`text-xl md:text-5xl font-bold py-2 ${color} tracking-tighter`}
       >
         {typeof value === "number" ? value.toLocaleString() : value || "N/A"}
       </div>
