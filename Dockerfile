@@ -24,6 +24,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Enable standalone output in next.config.js
+RUN sed -i 's/\/\/\s*output: "standalone"/output: "standalone"/' next.config.mjs
+
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
@@ -36,6 +39,9 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+# Create public directory if it doesn't exist
+RUN mkdir -p /app/public
+
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
@@ -47,6 +53,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy public directory (will be empty if it didn't exist)
 COPY --from=builder /app/public ./public
 
 # Automatically leverage output traces to reduce image size
