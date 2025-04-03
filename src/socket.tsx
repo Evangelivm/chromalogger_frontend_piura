@@ -1,14 +1,12 @@
-// socket.tsx
 "use client";
 
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
-//const { WS_URL } = process.env;
 
 let socket: Socket | null = null;
 
 // Obtén la URL del WebSocket desde las variables de entorno
-const WS_URL = process.env.REACT_APP_WS_URL || "ws://localhost:3000"; // Cambia el prefijo si usas Next.js
+const WS_URL = process.env.REACT_APP_WS_URL; // Cambia el prefijo si usas Next.js
 
 // Inicializa el socket solo una vez
 export const initializeSocket = () => {
