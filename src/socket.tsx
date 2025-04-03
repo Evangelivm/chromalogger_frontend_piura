@@ -1,15 +1,17 @@
+// socket.tsx
 "use client";
 
 import { useEffect } from "react";
 import { io, Socket } from "socket.io-client";
+//const { WS_URL } = process.env;
 
 let socket: Socket | null = null;
 
 // Inicializa el socket solo una vez
 export const initializeSocket = () => {
   if (!socket) {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3000";
-    socket = io(wsUrl);
+    socket = io("ws://161.132.47.226:3000"); // Cambia al puerto adecuado del servidor WebSocket
+    //socket = io("ws://localhost:3000"); // Cambia al puerto adecuado del servidor WebSocket
   }
   return socket;
 };
