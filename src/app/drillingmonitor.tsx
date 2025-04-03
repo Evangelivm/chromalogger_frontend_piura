@@ -685,7 +685,9 @@ const IndicatorBox = ({
       <div
         className={`text-xl md:text-5xl font-bold py-2 ${color} tracking-tighter`}
       >
-        {typeof value === "number" ? value.toLocaleString() : value || "N/A"}
+        {typeof value === "number"
+          ? value.toFixed(2) // Quitar las comas al no usar toLocaleString()
+          : value || "N/A"}
       </div>
       <div className="text-md text-[#8A8A8A] w-full text-center py-1 border-t border-[#2D2D2D] tracking-wider">
         {unit}
