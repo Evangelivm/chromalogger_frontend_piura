@@ -5,13 +5,11 @@ import { io, Socket } from "socket.io-client";
 
 let socket: Socket | null = null;
 
-// Obtén la URL del WebSocket desde las variables de entorno
-const WS_URL = process.env.REACT_APP_WS_URL; // Cambia el prefijo si usas Next.js
-
 // Inicializa el socket solo una vez
 export const initializeSocket = () => {
   if (!socket) {
-    socket = io(WS_URL); // Usa la URL desde la variable de entorno
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3000";
+    socket = io(wsUrl);
   }
   return socket;
 };
