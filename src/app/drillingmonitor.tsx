@@ -1,6 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useInView } from "react-intersection-observer";
+import {
+  DndContext,
+  useSensor,
+  useSensors,
+  PointerSensor,
+  closestCenter,
+} from "@dnd-kit/core";
+import { SortableContext, useSortable, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -36,6 +46,30 @@ interface IndicatorGroup {
   indicators: Indicator[];
 }
 
+// Componente SortableIndicatorBox para hacer los items arrastrables
+const SortableIndicatorBox = ({
+  id,
+  ...props
+}: {
+  id: string;
+  [key: string]: any;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    touchAction: "none",
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <IndicatorBox name={""} value={""} unit={""} {...props} />
+    </div>
+  );
+};
+
 function DrillingMonitor() {
   const [indicators, setIndicators] = useState<Record<string, number | string>>(
     {}
@@ -43,7 +77,54 @@ function DrillingMonitor() {
   const [criticalCount, setCriticalCount] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+  const [groupOrders, setGroupOrders] = useState<Record<string, string[]>>({});
+  // Agregar ref para detectar visibilidad
+  const { ref: drillingGroupRef, inView } = useInView({
+    threshold: 0,
+  });
 
+  // Configurar sensor para activación después de presionar
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
+  // Modificar el useEffect inicial para cargar el orden desde localStorage
+  useEffect(() => {
+    const savedOrders = localStorage.getItem("indicatorOrders");
+    if (savedOrders) {
+      setGroupOrders(JSON.parse(savedOrders));
+    } else {
+      const initialOrders: Record<string, string[]> = {};
+      indicatorGroups.forEach((group) => {
+        initialOrders[group.id] = group.indicators.map((ind) => ind.id);
+      });
+      setGroupOrders(initialOrders);
+      localStorage.setItem("indicatorOrders", JSON.stringify(initialOrders));
+    }
+  }, []);
+
+  // Modificar handleDragEnd para guardar el nuevo orden en localStorage
+  const handleDragEnd = (event: any, groupId: string) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      const oldIndex = groupOrders[groupId].indexOf(active.id);
+      const newIndex = groupOrders[groupId].indexOf(over.id);
+
+      const newOrders = {
+        ...groupOrders,
+        [groupId]: arrayMove(groupOrders[groupId] || [], oldIndex, newIndex),
+      };
+
+      setGroupOrders(newOrders);
+      localStorage.setItem("indicatorOrders", JSON.stringify(newOrders));
+    }
+  };
   // Umbrales para determinar valores críticos
   const thresholdsConfig = {
     // Datos operacionales
@@ -604,6 +685,33 @@ function DrillingMonitor() {
 
   return (
     <Card className="w-full h-full bg-[#0A0A0A] border-[#2D2D2D] overflow-auto font-mono">
+      {/* Panel flotante que aparece cuando drilling parameters no está visible */}
+      {!inView && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A] border-b border-[#2D2D2D] p-2 transition-opacity duration-300 ease-in-out animate-in fade-in slide-in-from-top-4">
+          <div className="flex justify-center max-w-screen-xl mx-auto">
+            <div className="flex items-center justify-center gap-8">
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-[#00CED1]">TOTAL DEPTH</span>
+                <span className="text-xl font-bold text-[#D8D8D8]">
+                  {typeof indicators.TOT_M_DEPTH === "number"
+                    ? indicators.TOT_M_DEPTH.toFixed(2)
+                    : "0.00"}{" "}
+                  m
+                </span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-[#00CED1]">BIT DEPTH</span>
+                <span className="text-xl font-bold text-[#D8D8D8]">
+                  {typeof indicators.BIT_M_DEPTH === "number"
+                    ? indicators.BIT_M_DEPTH.toFixed(2)
+                    : "0.00"}{" "}
+                  m
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-[#D8D8D8] text-2xl tracking-tighter">
@@ -639,24 +747,43 @@ function DrillingMonitor() {
       <CardContent className="p-4">
         <div className="space-y-6">
           {indicatorGroups.map((group) => (
-            <div key={group.id} className="space-y-3">
+            <div
+              key={group.id}
+              className="space-y-3"
+              ref={group.id === "drilling" ? drillingGroupRef : undefined}
+            >
               <div className="flex items-center gap-2">
                 {group.icon}
                 <h3 className="text-sm font-medium text-[#D8D8D8] tracking-wider">
                   {group.name}
                 </h3>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {group.indicators.map((indicator) => (
-                  <IndicatorBox
-                    key={indicator.id}
-                    name={indicator.name}
-                    value={indicator.value}
-                    unit={indicator.unit}
-                    color={getStatusColor(indicator.value, indicator.id)}
-                  />
-                ))}
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={(event) => handleDragEnd(event, group.id)}
+              >
+                <SortableContext items={groupOrders[group.id] || []}>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    {(groupOrders[group.id] || []).map((indicatorId) => {
+                      const indicator = group.indicators.find(
+                        (ind) => ind.id === indicatorId
+                      );
+                      if (!indicator) return null;
+                      return (
+                        <SortableIndicatorBox
+                          key={indicator.id}
+                          id={indicator.id}
+                          name={indicator.name}
+                          value={indicator.value}
+                          unit={indicator.unit}
+                          color={getStatusColor(indicator.value, indicator.id)}
+                        />
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </div>
           ))}
         </div>
