@@ -41,6 +41,7 @@ const handler = NextAuth({
           return {
             id: userFound.id,
             user: userFound.user,
+            name: userFound.name,
             email: userFound.email,
           };
         } catch (error) {
@@ -55,6 +56,7 @@ const handler = NextAuth({
   },
   session: {
     strategy: "jwt",
+    //maxAge: 60 * 60,
   },
   callbacks: {
     async jwt({ token, user }) {

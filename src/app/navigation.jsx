@@ -60,11 +60,6 @@ import { useSession } from "next-auth/react";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "Devy Salomon",
-    email: "devysalomon@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   oil_wells: [
     {
       name: "Pozo 1",
@@ -189,7 +184,14 @@ const data = {
 };
 
 function Navigation() {
+  const { data: session } = useSession(); // Añade este hook
   const [activeTeam, setActiveTeam] = React.useState(data.oil_wells[0]);
+  // Crea un objeto user con los datos de la sesión
+  const user = {
+    name: session?.user?.name || "",
+    email: session?.user?.email || "",
+    avatar: session?.user?.name || "",
+  };
   return (
     <>
       <Sidebar collapsible="icon" className="font-mono">
@@ -348,19 +350,16 @@ function Navigation() {
                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   >
                     <Avatar className="h-8 w-8 rounded-lg ">
-                      <AvatarImage
-                        src={data.user.avatar}
-                        alt={data.user.name}
-                      />
-                      <AvatarFallback className="rounded-lg">US</AvatarFallback>
+                      <AvatarImage src={user.name} alt={user.name} />
+                      <AvatarFallback className="rounded-lg">
+                        {user.name?.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight ">
                       <span className="truncate font-semibold">
-                        {data.user.name}
+                        {user.name}
                       </span>
-                      <span className="truncate text-xs">
-                        {data.user.email}
-                      </span>
+                      <span className="truncate text-xs">{user.email}</span>
                     </div>
                     <ChevronsUpDown className="ml-auto size-4" />
                   </SidebarMenuButton>
@@ -374,21 +373,16 @@ function Navigation() {
                   <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage
-                          src={data.user.avatar}
-                          alt={data.user.name}
-                        />
+                        <AvatarImage src={user.name} alt={user.name} />
                         <AvatarFallback className="rounded-lg font-mono">
-                          US
+                          {user.name?.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight font-mono">
                         <span className="truncate font-semibold">
-                          {data.user.name}
+                          {user.name}
                         </span>
-                        <span className="truncate text-xs">
-                          {data.user.email}
-                        </span>
+                        <span className="truncate text-xs">{user.email}</span>
                       </div>
                     </div>
                   </DropdownMenuLabel>
